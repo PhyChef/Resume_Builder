@@ -51,3 +51,12 @@ resume-builder/
 - Change accent color: edit `--accent` in `css/style.css`
 - Change gold color: edit `--gold` in `css/style.css`
 - Add a new template: add render function in `js/resume.js` + CSS class in `style.css`
+
+- To use the AI features (Cover Letter + ATS Score checker) you need a free Anthropic API key.
+Here's how to get one:
+
+Go to console.anthropic.com and create a free account
+Click API Keys → Create Key → copy it (starts with sk-ant-)
+Paste it in the top-right corner of the app
+
+Your key stays in your browser only — it is never stored or shared. Anthropic gives you free credits to start. After that, one cover letter costs roughly $0.01–0.03.
