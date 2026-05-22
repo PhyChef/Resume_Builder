@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Resume Builder</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">Resume<span>Builder</span></a>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('pageBuilder', this)">Builder</button>
+    <button class="nav-tab" onclick="showPage('pageCoverLetter', this)">Cover Letter</button>
+    <button class="nav-tab" onclick="showPage('pageATS', this)">ATS Score</button>
+  </div>
+  <div class="nav-api">
+    <div class="api-dot" id="apiDot"></div>
+    <span class="api-label" id="apiLabel">No API key</span>
+    <input type="password" id="apiKeyInput" placeholder="Paste Anthropic API key" autocomplete="off">
+  </div>
+</nav>
+
+<!-- PAGE: BUILDER -->
+<div class="page active" id="pageBuilder">
+  <div class="builder-layout">
+
+    <!-- FORM PANEL -->
+    <div class="form-panel">
+      <div class="form-header">
+        <h2>Your details</h2>
+        <div class="tpl-row">
+          <button class="tpl-btn active" onclick="setTemplate('classic',this)">Classic</button>
+          <button class="tpl-btn" onclick="setTemplate('modern',this)">Modern</button>
+          <button class="tpl-btn" onclick="setTemplate('minimal',this)">Minimal</button>
+        </div>
+      </div>
+      <div class="form-body" id="formBody">
+
+        <div class="field-section">
+          <div class="field-section-title">Personal info</div>
+          <div class="photo-row">
+            <div class="photo-init" id="sideInitials">?</div>
+            <img class="photo-preview" id="sidePhoto" alt="your photo">
+            <div>
+              <label class="upload-label" for="photoInput">Upload photo</label>
+              <input type="file" id="photoInput" accept="image/*">
+              <div id="photoName" style="font-size:10px;color:#aaa;margin-top:4px">No file chosen</div>
+            </div>
+          </div>
+          <label>Full name</label>
+          <input type="text" id="fullName" placeholder="e.g. Roberto Cimmino">
+          <label>Job title / target role</label>
+          <input type="text" id="jobTitle" placeholder="e.g. Director of Food & Beverage">
+          <div class="row2">
+            <div>
+              <label>Email</label>
+              <input type="email" id="email" placeholder="you@email.com">
+            </div>
+            <div>
+              <label>Phone</label>
+              <input type="tel" id="phone" placeholder="+66 ...">
+            </div>
+          </div>
+          <div class="row2">
+            <div>
+              <label>Location</label>
+              <input type="text" id="location" placeholder="Bangkok, Thailand">
+            </div>
+            <div>
+              <label>LinkedIn / website</label>
+              <input type="url" id="linkedin" placeholder="linkedin.com/in/...">
+            </div>
+          </div>
+          <label>Profile summary</label>
+          <textarea id="summary" rows="3" placeholder="2–3 sharp lines. Who you are, what you bring, what you're after. No fluff."></textarea>
+        </div>
+
+        <div class="field-section">
+          <div class="field-section-title">Experience</div>
+          <div id="expBlocks"></div>
+          <button class="add-btn" onclick="addExp()">+ Add position</button>
+        </div>
+
+        <div class="field-section">
+          <div class="field-section-title">Education</div>
+          <div id="eduBlocks"></div>
+          <button class="add-btn" onclick="addEdu()">+ Add education</button>
+        </div>
+
+        <div class="field-section">
+          <div class="field-section-title">Skills, languages & certifications</div>
+          <label>Skills (comma separated)</label>
+          <input type="text" id="skills" placeholder="Menu engineering, P&L management, RevPASH, HACCP, Opera PMS">
+          <label>Languages (comma separated)</label>
+          <input type="text" id="langs" placeholder="Italian (native), English (fluent), Thai (basic)">
+          <label>Certifications / awards (one per line)</label>
+          <textarea id="certs" rows="3" placeholder="WSET Level 3&#10;Forbes Five-Star team 2022&#10;Opening team – Rosewood Bangkok"></textarea>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PREVIEW PANEL -->
+    <div class="preview-panel">
+      <div class="preview-toolbar">
+        <button class="btn-secondary" onclick="window.print()">Print</button>
+        <button class="btn-primary" onclick="downloadPDF()">⬇ Download PDF</button>
+      </div>
+      <div class="resume-paper tpl-classic" id="resumePaper"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PAGE: COVER LETTER -->
+<div class="page" id="pageCoverLetter">
+  <div class="ai-page">
+    <h1>Cover Letter Generator</h1>
+    <p class="subtitle">Paste the job posting, pick your tone, and get a sharp 3-paragraph letter tailored to the role. Uses your resume data from the Builder tab.</p>
+
+    <div class="api-notice" id="clNotice">
+      You need an <a href="https://console.anthropic.com/" target="_blank">Anthropic API key</a> to use AI features. Paste it in the top-right corner. It's free to start — you pay per use, typically a few cents per letter.
+    </div>
+
+    <div class="ai-grid">
+      <div class="ai-card ai-card-full">
+        <h3>Job posting</h3>
+        <textarea id="clJobPosting" placeholder="Paste the full job description here. The more detail you give, the more targeted the letter."></textarea>
+      </div>
+      <div class="ai-card">
+        <h3>Tone</h3>
+        <select id="clTone" style="width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--text);outline:none">
+          <option value="confident and direct">Confident & direct</option>
+          <option value="warm and professional">Warm & professional</option>
+          <option value="formal and executive">Formal & executive</option>
+          <option value="energetic and driven">Energetic & driven</option>
+        </select>
+      </div>
+      <div class="ai-card" style="display:flex;align-items:center;justify-content:center">
+        <div style="text-align:center">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Uses your resume from the Builder tab</div>
+          <div style="font-size:11px;color:var(--muted)">${val('fullName') ? 'Resume loaded' : 'Fill in the Builder tab first'}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ai-action">
+      <button class="btn-gold" onclick="generateCoverLetter()" style="padding:12px 36px;font-size:14px">Generate cover letter</button>
+    </div>
+
+    <div class="loading-bar" id="clLoading"></div>
+
+    <div class="ai-result" id="clResult">
+      <h3>Your cover letter</h3>
+      <div class="ai-result-body" id="clResultBody"></div>
+      <div class="ai-result-actions">
+        <button class="btn-primary" id="clCopyBtn" onclick="copyCoverLetter()">Copy text</button>
+        <button class="btn-secondary" onclick="generateCoverLetter()">Regenerate</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: ATS SCORE -->
+<div class="page" id="pageATS">
+  <div class="ai-page">
+    <h1>ATS Score Checker</h1>
+    <p class="subtitle">Paste any job posting and get a score showing how well your resume matches it — plus the exact keywords you're missing and how to fix them.</p>
+
+    <div class="api-notice" id="atsNotice">
+      You need an <a href="https://console.anthropic.com/" target="_blank">Anthropic API key</a> to use AI features. Paste it in the top-right corner. It's free to start — a few cents per check.
+    </div>
+
+    <div class="ai-grid">
+      <div class="ai-card ai-card-full">
+        <h3>Job posting to check against</h3>
+        <textarea id="atsJobPosting" style="min-height:220px" placeholder="Paste the full job description here. Include the requirements, responsibilities, and any qualifications listed."></textarea>
+      </div>
+    </div>
+
+    <div class="ai-action">
+      <button class="btn-gold" onclick="runATSCheck()" style="padding:12px 36px;font-size:14px">Check ATS score</button>
+    </div>
+
+    <div class="loading-bar" id="atsLoading"></div>
+
+    <div class="ai-result" id="atsResult">
+      <h3>ATS analysis</h3>
+      <div id="atsResultBody"></div>
+      <div class="ai-result-actions">
+        <button class="btn-secondary" onclick="runATSCheck()">Re-check</button>
+        <button class="btn-primary" onclick="showPage('pageBuilder', document.querySelectorAll('.nav-tab')[0])">Back to builder →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Built with Resume Builder &nbsp;·&nbsp; AI powered by <a href="https://anthropic.com" target="_blank">Anthropic Claude</a>
+</footer>
+
+<script src="js/resume.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/nav.js"></script>
+</body>
+</html>
